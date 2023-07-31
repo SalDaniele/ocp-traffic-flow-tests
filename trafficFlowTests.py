@@ -38,74 +38,85 @@ class TestCaseType(Enum):
     POD_TO_EXTERNAL                      = 25
     HOST_TO_EXTERNAL                     = 26
 
-
 class TrafficFlowTests():
     def __init__(self, tft: TestConfig):
         self._tft = tft
         self.monitors = []
+    
+    def get_test_configuration(self, sriov: bool, test_case: TestCaseType, node_server_name: str, node_client_name: str) -> dict:
+        config = {}
+        config["server_name"] = node_server_name
+        config["client_name"] = node_client_name
+        config["sriov"] = sriov
+        config["server_pod_type"] = PodType.HOSTBACKED
+        config["client_pod_type"] = PodType.NORMAL
+        return config
 
     def create_iperf_server_client(self, sriov: bool, test_case: TestCaseType, node_server_name: str, node_client_name: str) -> (IperfServer, IperfClient):
-        server_pod_type = PodType.NORMAL
-        client_pod_type = PodType.NORMAL
-        if sriov:
-            server_pod_type = PodType.SRIOV
-            client_pod_type = PodType.SRIOV
+        # server_pod_type = PodType.NORMAL
+        # client_pod_type = PodType.NORMAL
+        # if sriov:
+        #     server_pod_type = PodType.SRIOV
+        #     client_pod_type = PodType.SRIOV
 
-        if test_case == TestCaseType.POD_TO_POD_SAME_NODE:
-            node_client_name = node_server_name
-        elif test_case == TestCaseType.POD_TO_POD_DIFF_NODE:
-            pass
-        elif test_case == TestCaseType.POD_TO_HOST_SAME_NODE:
-            node_client_name = node_server_name
-        elif test_case == TestCaseType.POD_TO_HOST_DIFF_NODE:
-            pass
-        elif test_case == TestCaseType.POD_TO_CLUSTER_IP_TO_POD_SAME_NODE:
-            node_client_name = node_server_name
-        elif test_case == TestCaseType.POD_TO_CLUSTER_IP_TO_POD_DIFF_NODE:
-            pass
-        elif test_case == TestCaseType.POD_TO_CLUSTER_IP_TO_HOST_SAME_NODE:
-            node_client_name = node_server_name
-        elif test_case == TestCaseType.POD_TO_CLUSTER_IP_TO_HOST_DIFF_NODE:
-            pass
-        elif test_case == TestCaseType.POD_TO_NODE_PORT_TO_POD_SAME_NODE:
-            node_client_name = node_server_name
-        elif test_case == TestCaseType.POD_TO_NODE_PORT_TO_POD_DIFF_NODE:
-            pass
-        elif test_case == TestCaseType.POD_TO_NODE_PORT_TO_HOST_SAME_NODE:
-            node_client_name = node_server_name
-        elif test_case == TestCaseType.POD_TO_NODE_PORT_TO_HOST_DIFF_NODE:
-            pass
-        elif test_case == TestCaseType.HOST_TO_HOST_SAME_NODE:
-            node_client_name = node_server_name
-        elif test_case == TestCaseType.HOST_TO_HOST_DIFF_NODE:
-            pass
-        elif test_case == TestCaseType.HOST_TO_POD_SAME_NODE:
-            node_client_name = node_server_name
-        elif test_case == TestCaseType.HOST_TO_POD_DIFF_NODE:
-            pass
-        elif test_case == TestCaseType.HOST_TO_CLUSTER_IP_TO_POD_SAME_NODE:
-            node_client_name = node_server_name
-        elif test_case == TestCaseType.HOST_TO_CLUSTER_IP_TO_POD_DIFF_NODE:
-            pass
-        elif test_case == TestCaseType.HOST_TO_CLUSTER_IP_TO_HOST_SAME_NODE:
-            node_client_name = node_server_name
-        elif test_case == TestCaseType.HOST_TO_CLUSTER_IP_TO_HOST_DIFF_NODE:
-            pass
-        elif test_case == TestCaseType.HOST_TO_NODE_PORT_TO_POD_SAME_NODE:
-            node_client_name = node_server_name
-        elif test_case == TestCaseType.HOST_TO_NODE_PORT_TO_POD_DIFF_NODE:
-            pass
-        elif test_case == TestCaseType.HOST_TO_NODE_PORT_TO_HOST_SAME_NODE:
-            node_client_name = node_server_name
-        elif test_case == TestCaseType.HOST_TO_NODE_PORT_TO_HOST_DIFF_NODE:
-            pass
-        elif test_case == TestCaseType.POD_TO_EXTERNAL:
-            pass
-        elif test_case == TestCaseType.HOST_TO_EXTERNAL:
-            pass
+        # if test_case == TestCaseType.POD_TO_POD_SAME_NODE:
+        #     node_client_name = node_server_name
+        # elif test_case == TestCaseType.POD_TO_POD_DIFF_NODE:
+        #     pass
+        # elif test_case == TestCaseType.POD_TO_HOST_SAME_NODE:
+        #     node_client_name = node_server_name
+        # elif test_case == TestCaseType.POD_TO_HOST_DIFF_NODE:
+        #     pass
+        # elif test_case == TestCaseType.POD_TO_CLUSTER_IP_TO_POD_SAME_NODE:
+        #     node_client_name = node_server_name
+        # elif test_case == TestCaseType.POD_TO_CLUSTER_IP_TO_POD_DIFF_NODE:
+        #     pass
+        # elif test_case == TestCaseType.POD_TO_CLUSTER_IP_TO_HOST_SAME_NODE:
+        #     node_client_name = node_server_name
+        # elif test_case == TestCaseType.POD_TO_CLUSTER_IP_TO_HOST_DIFF_NODE:
+        #     pass
+        # elif test_case == TestCaseType.POD_TO_NODE_PORT_TO_POD_SAME_NODE:
+        #     node_client_name = node_server_name
+        # elif test_case == TestCaseType.POD_TO_NODE_PORT_TO_POD_DIFF_NODE:
+        #     pass
+        # elif test_case == TestCaseType.POD_TO_NODE_PORT_TO_HOST_SAME_NODE:
+        #     node_client_name = node_server_name
+        # elif test_case == TestCaseType.POD_TO_NODE_PORT_TO_HOST_DIFF_NODE:
+        #     pass
+        # elif test_case == TestCaseType.HOST_TO_HOST_SAME_NODE:
+        #     node_client_name = node_server_name
+        # elif test_case == TestCaseType.HOST_TO_HOST_DIFF_NODE:
+        #     pass
+        # elif test_case == TestCaseType.HOST_TO_POD_SAME_NODE:
+        #     node_client_name = node_server_name
+        # elif test_case == TestCaseType.HOST_TO_POD_DIFF_NODE:
+        #     pass
+        # elif test_case == TestCaseType.HOST_TO_CLUSTER_IP_TO_POD_SAME_NODE:
+        #     node_client_name = node_server_name
+        # elif test_case == TestCaseType.HOST_TO_CLUSTER_IP_TO_POD_DIFF_NODE:
+        #     pass
+        # elif test_case == TestCaseType.HOST_TO_CLUSTER_IP_TO_HOST_SAME_NODE:
+        #     node_client_name = node_server_name
+        # elif test_case == TestCaseType.HOST_TO_CLUSTER_IP_TO_HOST_DIFF_NODE:
+        #     pass
+        # elif test_case == TestCaseType.HOST_TO_NODE_PORT_TO_POD_SAME_NODE:
+        #     node_client_name = node_server_name
+        # elif test_case == TestCaseType.HOST_TO_NODE_PORT_TO_POD_DIFF_NODE:
+        #     pass
+        # elif test_case == TestCaseType.HOST_TO_NODE_PORT_TO_HOST_SAME_NODE:
+        #     node_client_name = node_server_name
+        # elif test_case == TestCaseType.HOST_TO_NODE_PORT_TO_HOST_DIFF_NODE:
+        #     pass
+        # elif test_case == TestCaseType.POD_TO_EXTERNAL:
+        #     pass
+        # elif test_case == TestCaseType.HOST_TO_EXTERNAL:
+        #     pass
 
-        s = IperfServer(self._tft, 0, node_server_name, False, server_pod_type, True)
-        c = IperfClient(self._tft, s, 0, node_client_name, client_pod_type, True)
+        # Get the server / client names and PodType
+        config = self.get_test_configuration(sriov, test_case, node_server_name, node_client_name)
+
+        s = IperfServer(self._tft, 0, config["node_server_name"], False, config["server_pod_type"], True)
+        c = IperfClient(self._tft, s, 0, config["node_client_name"], config["client_pod_type"], True)
         return (s, c)
 
     def server_test_to_pod_type(self, test_id: int, cfg_pod_type: str) -> PodType:
@@ -197,13 +208,13 @@ class TrafficFlowTests():
                                 monitors.append(c)
         """
 
-        #self.cleanup_previous_pods("default")
+        self.cleanup_previous_pods("default")
         self.configure_namespace("default")
         duration = 10
         logger.info(f"Running for {duration} seconds")
 
-        node_server_name = "worker-advnetlab23"
-        node_client_name = "worker-advnetlab24"
+        node_server_name = "worker-235"
+        node_client_name = "worker-236"
         index = 0
 
         s, c = self.create_iperf_server_client(True, TestCaseType.POD_TO_POD_DIFF_NODE, node_server_name, node_client_name)
