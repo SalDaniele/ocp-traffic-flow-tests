@@ -5,27 +5,27 @@ from testConfig import TestConfig
 from thread import ReturnValueThread
 from task import Task
 from host import Result
+from testSettings import TestSettings
 import sys
 import yaml
 import json
 
 
 class IperfServer(Task):
-    def __init__(self, tft: TestConfig, index: int, node_name: str, exec_persistent: bool, pod_type: PodType, tenant: bool):
-        super().__init__(tft, index, node_name, tenant)
-        self.exec_persistent = exec_persistent
+    def __init__(self, tft: TestConfig, ts: TestSettings):
+        super().__init__(tft, ts.server_index, ts.node_server_name, ts.server_is_tenant)
         self.port = 5201 + self.index
-        self.pod_type = pod_type
+        self.pod_type = ts.server_pod_type
 
-        if pod_type == PodType.SRIOV:
+        if ts.server_pod_type == PodType.SRIOV:
             self.in_file_template = "./manifests/sriov-pod.yaml.j2"
             self.out_file_yaml = f"./manifests/yamls/sriov-pod-{self.node_name}-server.yaml"
             self.template_args["pod_name"] = f"sriov-pod-{self.node_name}-server-{self.port}"
-        elif pod_type == PodType.NORMAL:
+        elif ts.server_pod_type == PodType.NORMAL:
             self.in_file_template = "./manifests/pod.yaml.j2"
             self.out_file_yaml = f"./manifests/yamls/pod-{self.node_name}-server.yaml"
             self.template_args["pod_name"] = f"normal-pod-{self.node_name}-server-{self.port}"
-        elif pod_type == PodType.HOSTBACKED:
+        elif ts.server_pod_type == PodType.HOSTBACKED:
             self.in_file_template = "./manifests/host-pod.yaml.j2"
             self.out_file_yaml = f"./manifests/yamls/host-pod-{self.node_name}-server.yaml"
             self.template_args["pod_name"] = f"host-pod-{self.node_name}-server-{self.port}"
@@ -34,14 +34,14 @@ class IperfServer(Task):
 
         self.pod_name = self.template_args["pod_name"]
 
-        if self.exec_persistent:
-            self.template_args["command"] = "iperf"
-            self.template_args["args"] = f"-s -p {self.port}"
+        if ts.server_is_persistent:
+            self.template_args["command"] = "iperf3"
+            self.template_args["args"] = ["-s", "-p", f"{self.port}"]
 
         common.j2_render(self.in_file_template, self.out_file_yaml, self.template_args)
         logger.info(f"Generated Server Pod Yaml {self.out_file_yaml}")
 
-        self.create_cluster_ip_service()
+        self.cluster_ip_addr = self.create_cluster_ip_service()
         self.create_node_port_service(self.port + 25000)
 
     def setup(self):
@@ -68,20 +68,20 @@ class IperfServer(Task):
         #logger.info(r.out)
 
 class IperfClient(Task):
-    def __init__(self, tft: TestConfig, server: IperfServer, index: int, node_name: str, pod_type: PodType, tenant: bool):
-        super().__init__(tft, index, node_name, tenant)
+    def __init__(self, tft: TestConfig, ts: TestSettings, server: IperfServer):
+        super().__init__(tft, ts.client_index, ts.node_client_name, ts.client_is_tenant)
         self.server = server
         self.port = self.server.port
 
-        if pod_type == PodType.SRIOV:
+        if ts.client_pod_type == PodType.SRIOV:
             self.in_file_template = "./manifests/sriov-pod.yaml.j2"
             self.out_file_yaml = f"./manifests/yamls/sriov-pod-{self.node_name}-client.yaml"
             self.template_args["pod_name"] = f"sriov-pod-{self.node_name}-client-{self.port}"
-        elif pod_type == PodType.NORMAL:
+        elif ts.client_pod_type == PodType.NORMAL:
             self.in_file_template = "./manifests/pod.yaml.j2"
             self.out_file_yaml = f"./manifests/yamls/pod-{self.node_name}-client.yaml"
             self.template_args["pod_name"] = f"normal-pod-{self.node_name}-client-{self.port}"
-        elif pod_type == PodType.HOSTBACKED:
+        elif ts.client_pod_type == PodType.HOSTBACKED:
             self.in_file_template = "./manifests/host-pod.yaml.j2"
             self.out_file_yaml = f"./manifests/yamls/host-pod-{self.node_name}-client.yaml"
             self.template_args["pod_name"] = f"host-pod-{self.node_name}-client-{self.port}"
