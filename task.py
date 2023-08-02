@@ -51,7 +51,7 @@ class Task(ABC):
         y = yaml.safe_load(r.out)
         return y["status"]["podIP"]
 
-    def create_cluster_ip_service(self):
+    def create_cluster_ip_service(self) -> str:
         in_file_template = "./manifests/svc-cluster-ip.yaml.j2"
         out_file_yaml = f"./manifests/yamls/svc-cluster-ip.yaml"
 
@@ -62,6 +62,8 @@ class Task(ABC):
             if "already exists" not in r.err:
                 logger.info(r)
                 sys.exit(-1)
+        
+        return self.run_oc("get service tft-clusterip-service -o=jsonpath='{.spec.clusterIP}'").out
 
     def create_node_port_service(self, nodeport: int):
         in_file_template = "./manifests/svc-node-port.yaml.j2"
