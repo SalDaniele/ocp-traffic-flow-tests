@@ -2,9 +2,11 @@ name: Build and Push
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    types:
+      - closed
 
 jobs:
 
